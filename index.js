@@ -4,9 +4,18 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const _ = require('lodash');
+const {Storage} = require('@google-cloud/storage')
+const path = require('path')
 
 const app = express();
 
+//gcs
+const gcs = new Storage({
+    keyFilename: path.join(__dirname,'file-upload-system-7adacef1dfb9.json'),
+    projectId: 'file-upload-system'
+})
+
+const fus_bucket_file = gcs.bucket('fus_bucket')
 // enable files upload
 app.use(fileUpload({
     createParentPath: true,
@@ -45,7 +54,11 @@ app.post('/uploadfile', async (req, res) => {
             let tf = req.files.tf;
             
             //Use the mv() method to place the file in upload directory (i.e. "uploads")
-            tf.mv('./uploads/' + tf.name);
+            // tf.mv('./uploads/' + tf.name);
+            fus_bucket_file.file(tf).createWriteStream({
+                resumable: false,
+                gzip: true
+            })
 
             //send response
             res.send({
