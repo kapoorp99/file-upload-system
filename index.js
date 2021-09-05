@@ -57,7 +57,6 @@ app.post('/uploadfile', async (req, res) => {
             // tf.mv('./uploads/' + tf.name);
             fus_bucket_file.file(tf).createWriteStream({
                 resumable: false,
-                gzip: true
             })
 
             //send response
